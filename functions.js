@@ -134,12 +134,9 @@ const dataWrangle = async (data, destination) => {
         excerpt: get(post, `['excerpt:encoded'][0]`)
           ? `"${get(post, `['excerpt:encoded'][0]`)}"`
           : undefined,
-        draft: get(post, `['wp:status'][0]`) !== 'publish',
         meta_title: `"${getMeta('_yoast_wpseo_title', get(post, 'title[0]'))}"`,
-        twitter_shares: getMeta('essb_c_twitter'),
-        facebook_shares: getMeta('essb_c_facebook'),
-        kksr_ratings: getMeta('_kksr_ratings'),
-        kksr_casts: getMeta('_kksr_casts'),
+        seo_description: getMeta('_yoast_wpseo_metadesc'),
+        seo_keywords: getMeta('_yoast_wpseo_focuskw'),
       };
 
       return writing(header, images, content, destination);
