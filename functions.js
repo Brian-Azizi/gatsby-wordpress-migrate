@@ -79,6 +79,20 @@ const parseImages = value => {
 };
 
 const dataWrangle = async (data, destination) => {
+  const getThumbnail = thumbnailId => {
+    log(`THUMBNAIL ID: ${thumbnailId}`);
+    if (!thumbnailId) return null;
+
+    const thumbnail = data.rss.channel[0].item.find(
+      post => post['wp:post_id'][0] === thumbnailId,
+    )['wp:attachment_url'][0];
+
+    return {
+      url: thumbnail,
+      fileName: thumbnail.substring(thumbnail.lastIndexOf('/') + 1),
+    };
+  };
+
   // Iterate in every Post
   data.rss.channel[0].item
     .filter(post => !!post.category)
@@ -97,33 +111,21 @@ const dataWrangle = async (data, destination) => {
       };
 
       let content = post['content:encoded'][0];
-      let images = parseImages(content);
+      const images = parseImages(content);
       images.forEach(image => {
         content = content.replace(
           new RegExp(image.url, 'g'),
           `./${image.fileName}`,
         );
       });
-
-      const thumbnail = getMeta('essb_cached_image');
-      images =
-        thumbnail !== undefined
-          ? [
-              {
-                url: thumbnail,
-                fileName: thumbnail.substring(thumbnail.lastIndexOf('/') + 1),
-              },
-              ...images,
-            ]
-          : images;
+      const thumbnail = getThumbnail(getMeta('_thumbnail_id'));
+      if (thumbnail) images.unshift(thumbnail);
 
       content = turndownService.turndown(content);
 
       const header = {
         title: `"${get(post, 'title[0]')}"`,
-        image: thumbnail
-          ? `./${thumbnail.substring(thumbnail.lastIndexOf('/') + 1)}`
-          : undefined,
+        thumbnail: thumbnail ? thumbnail.url : undefined,
         author: get(post, `['dc:creator'][0]`),
         date: moment(get(post, 'pubDate[0]')).format(),
         categories: `[${post.category.map(
