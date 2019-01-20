@@ -25,15 +25,12 @@ function writing(header, images, content, dest) {
     fs.mkdirSync(destination);
   }
 
-  const finalDestinationFolder = [
-    destination,
-    header.title.replace(/\//g, ' of '),
-  ].join('/');
+  const finalDestinationFolder = [destination, header.slug].join('/');
 
   let srcPath = finalDestinationFolder;
 
   // Create the proper folder structure for the unique post
-  if (!header.title) {
+  if (!header.slug) {
     srcPath = `${destination}/draft.${shortid.generate()}`;
     fs.mkdirSync(srcPath);
   } else if (!fs.existsSync(finalDestinationFolder)) {
