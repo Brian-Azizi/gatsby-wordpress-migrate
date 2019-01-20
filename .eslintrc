@@ -8,5 +8,10 @@
   },
   "env": {
     "browser": true
+  },
+  "globals": {
+    "IMAGE_COUNT": true,
+    "TOTAL_IMAGES": true,
+    "IMAGE_ERRORS": true
   }
 }

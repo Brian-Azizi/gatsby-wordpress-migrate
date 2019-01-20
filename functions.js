@@ -8,6 +8,10 @@ const writing = require('./writing');
 const { log } = console;
 const { yellow: progress } = chalk;
 
+TOTAL_IMAGES = 0;
+IMAGE_COUNT = 0;
+IMAGE_ERRORS = 0;
+
 /* *********** Turndown Initializing ********** */
 
 const turndownService = new TurndownService({
@@ -140,6 +144,8 @@ const dataWrangle = async (data, destination) => {
         seo_description: getMeta('_yoast_wpseo_metadesc'),
         seo_keywords: getMeta('_yoast_wpseo_focuskw'),
       };
+
+      TOTAL_IMAGES += images.length;
 
       return writing(header, images, content, destination);
     });

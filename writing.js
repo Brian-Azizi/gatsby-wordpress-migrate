@@ -56,15 +56,25 @@ function writing(header, images, content, dest) {
   // Fetching the Images from the URLs
   // Here I encode URI in order to convert Unescaped Characters
   log('Downloading images...');
-  images.forEach(async image =>
-    fetch(encodeURI(image.url))
+  images.forEach(async image => {
+    fetch(encodeURI(image.url), { timeout: 1000 * 60 * 10 })
       .then(res => {
         const file = fs.createWriteStream(`${srcPath}/${image.fileName}`);
         res.body.pipe(file);
-        log(success(`The image ${image.url} was successfully downloaded.`));
+        IMAGE_COUNT += 1;
+        log(
+          success(
+            `Image ${IMAGE_COUNT}/${TOTAL_IMAGES}: The image ${
+              image.url
+            } was successfully downloaded.`,
+          ),
+        );
       })
-      .catch(err => log(error(err))),
-  );
+      .catch(err => {
+        IMAGE_ERRORS += 1;
+        log(error(`Error #${IMAGE_ERRORS} in post ${header.title}: ${err}`));
+      });
+  });
 }
 
 module.exports = writing;
