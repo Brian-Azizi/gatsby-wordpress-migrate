@@ -85,11 +85,21 @@ const parseImages = value => {
 const dataWrangle = async (data, destination) => {
   const getThumbnail = thumbnailId => {
     log(`THUMBNAIL ID: ${thumbnailId}`);
-    if (!thumbnailId) return null;
+    if (!thumbnailId) {
+      log(`NO THUMBNAIL, SKIPPING`);
+      return null;
+    }
 
-    const thumbnail = data.rss.channel[0].item.find(
+    const thumbnailObject = data.rss.channel[0].item.find(
       post => post['wp:post_id'][0] === thumbnailId,
-    )['wp:attachment_url'][0];
+    );
+
+    if (typeof thumbnailObject === 'undefined') {
+      log(`NO THUMBNAIL OBJECT, SKIPPING`);
+      return null;
+    }
+
+    const thumbnail = thumbnailObject['wp:attachment_url'][0];
 
     return {
       url: thumbnail,
