@@ -114,7 +114,7 @@ const dataWrangle = async (data, destination) => {
     .map((post, index) => {
       log(progress(`Currently Parsing Post No: ${index + 1}`));
 
-      const getMeta = (key, defaultMeta = undefined) => {
+      const getMeta = (key, defaultMeta = '') => {
         const metaIndex = findIndex(
           post['wp:postmeta'],
           meta => meta['wp:meta_key'][0] === key,
@@ -151,8 +151,8 @@ const dataWrangle = async (data, destination) => {
           ? `"${get(post, `['excerpt:encoded'][0]`)}"`
           : undefined,
         meta_title: `"${getMeta('_yoast_wpseo_title', get(post, 'title[0]'))}"`,
-        seo_description: getMeta('_yoast_wpseo_metadesc'),
-        seo_keywords: getMeta('_yoast_wpseo_focuskw'),
+        seo_description: `"${getMeta('_yoast_wpseo_metadesc')}"`,
+        seo_keywords: `"${getMeta('_yoast_wpseo_focuskw')}"`,
       };
 
       TOTAL_IMAGES += images.length;
