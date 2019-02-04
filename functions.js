@@ -85,11 +85,21 @@ const parseImages = value => {
 const dataWrangle = async (data, destination) => {
   const getThumbnail = thumbnailId => {
     log(`THUMBNAIL ID: ${thumbnailId}`);
-    if (!thumbnailId) return null;
+    if (!thumbnailId) {
+      log(`NO THUMBNAIL, SKIPPING`);
+      return null;
+    }
 
-    const thumbnail = data.rss.channel[0].item.find(
+    const thumbnailObject = data.rss.channel[0].item.find(
       post => post['wp:post_id'][0] === thumbnailId,
-    )['wp:attachment_url'][0];
+    );
+
+    if (typeof thumbnailObject === 'undefined') {
+      log(`NO THUMBNAIL OBJECT, SKIPPING`);
+      return null;
+    }
+
+    const thumbnail = thumbnailObject['wp:attachment_url'][0];
 
     return {
       url: thumbnail,
@@ -104,7 +114,7 @@ const dataWrangle = async (data, destination) => {
     .map((post, index) => {
       log(progress(`Currently Parsing Post No: ${index + 1}`));
 
-      const getMeta = (key, defaultMeta = undefined) => {
+      const getMeta = (key, defaultMeta = '') => {
         const metaIndex = findIndex(
           post['wp:postmeta'],
           meta => meta['wp:meta_key'][0] === key,
@@ -141,8 +151,8 @@ const dataWrangle = async (data, destination) => {
           ? `"${get(post, `['excerpt:encoded'][0]`)}"`
           : undefined,
         meta_title: `"${getMeta('_yoast_wpseo_title', get(post, 'title[0]'))}"`,
-        seo_description: getMeta('_yoast_wpseo_metadesc'),
-        seo_keywords: getMeta('_yoast_wpseo_focuskw'),
+        seo_description: `"${getMeta('_yoast_wpseo_metadesc')}"`,
+        seo_keywords: `"${getMeta('_yoast_wpseo_focuskw')}"`,
       };
 
       TOTAL_IMAGES += images.length;
