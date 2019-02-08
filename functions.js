@@ -12,37 +12,14 @@ TOTAL_IMAGES = 0;
 IMAGE_COUNT = 0;
 IMAGE_ERRORS = 0;
 
+
+// TODO: in html, Need to replace [code language=XXX] by <pre><code class="language-XXX"> and [/code] by </code></pre> before calling turndown service
+
 /* *********** Turndown Initializing ********** */
 
 const turndownService = new TurndownService({
   headingStyle: 'atx',
   codeBlockStyle: 'fenced',
-});
-
-// Pre tag => PrismJS for gatsby plugin
-turndownService.addRule('pre-tags', {
-  filter: 'pre',
-  replacement(value) {
-    // Remove Escape Characters from String
-    // created by TurndownService.prototype.escape
-    // Unfortenately node is private in Turndown.js
-    const content = value.replace(/\\/g, '');
-
-    // Check if there is a Newline character to make the comment inline
-    return content.split('\n').length > 1
-      ? `\n\`\`\`\n${content}\n\`\`\`\n`
-      : ` \`${content}\` `;
-  },
-});
-
-// Code tag => PrismJS for gatsby plugin
-turndownService.addRule('code-tags', {
-  filter: 'code',
-  replacement(content) {
-    return content.split('\n').length > 1
-      ? `\n\`\`\`\n${content}\n\`\`\`\n`
-      : ` \`${content}\` `;
-  },
 });
 
 // Strong tag fix es
