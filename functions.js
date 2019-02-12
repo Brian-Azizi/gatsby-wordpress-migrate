@@ -113,6 +113,15 @@ const dataWrangle = async (data, destination) => {
       const thumbnail = getThumbnail(getMeta('_thumbnail_id'));
       if (thumbnail) images.unshift(thumbnail);
 
+      // Remove short codes
+      content = content
+        .replace(
+          /\[code language="(\w+)"\]/g,
+          '<pre><code class="language-$1">',
+        )
+        .replace(/\[code\]/g, '<pre><code>')
+        .replace(/\[\/code\]/g, '</code></pre>');
+
       content = turndownService.turndown(content);
 
       const header = {
