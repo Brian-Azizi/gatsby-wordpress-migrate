@@ -12,6 +12,7 @@ TOTAL_IMAGES = 0;
 IMAGE_COUNT = 0;
 IMAGE_ERRORS = 0;
 
+const escapeQuotes = string => string.replace(/"/gm, '\\"');
 
 // TODO: in html, Need to replace [code language=XXX] by <pre><code class="language-XXX"> and [/code] by </code></pre> before calling turndown service
 
@@ -115,7 +116,7 @@ const dataWrangle = async (data, destination) => {
       content = turndownService.turndown(content);
 
       const header = {
-        title: `"${get(post, 'title[0]')}"`,
+        title: `"${escapeQuotes(get(post, 'title[0]'))}"`,
         thumbnail: thumbnail ? thumbnail.url : undefined,
         author: get(post, `['dc:creator'][0]`),
         date: moment(get(post, 'pubDate[0]')).format(),
@@ -125,10 +126,12 @@ const dataWrangle = async (data, destination) => {
         )}]`,
         slug: get(post, `['wp:post_name'][0]`) || undefined,
         excerpt: get(post, `['excerpt:encoded'][0]`)
-          ? `"${get(post, `['excerpt:encoded'][0]`)}"`
+          ? `"${escapeQuotes(get(post, `['excerpt:encoded'][0]`))}"`
           : undefined,
-        meta_title: `"${getMeta('_yoast_wpseo_title', get(post, 'title[0]'))}"`,
-        seo_description: `"${getMeta('_yoast_wpseo_metadesc')}"`,
+        meta_title: `"${escapeQuotes(
+          getMeta('_yoast_wpseo_title', get(post, 'title[0]')),
+        )}"`,
+        seo_description: `"${escapeQuotes(getMeta('_yoast_wpseo_metadesc'))}"`,
         seo_keywords: `"${getMeta('_yoast_wpseo_focuskw')}"`,
       };
 
