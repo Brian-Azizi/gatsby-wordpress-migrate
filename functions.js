@@ -51,7 +51,7 @@ const parseImages = value => {
   const images = imagesElements
     .filter((index, img) => !!img.attribs.src)
     .map((index, { attribs: { src: imageURL, ...rest } }) => ({
-      fileName: imageURL.substring(imageURL.lastIndexOf('/') + 1),
+      fileName: imageURL.substring(imageURL.lastIndexOf('/') + 1).split('?')[0],
       url: imageURL,
       ...rest,
     }))
