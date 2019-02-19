@@ -120,7 +120,21 @@ const dataWrangle = async (data, destination) => {
           '<pre><code class="language-$1">',
         )
         .replace(/\[code\]/g, '<pre><code>')
-        .replace(/\[\/code\]/g, '</code></pre>');
+        .replace(/\[\/code\]/g, '</code></pre>')
+        .replace(/\[caption .*?\]/g, '<div>')
+        .replace(/\[\/caption\]/g, '</div>')
+        .replace(/\[bash\]/g, '<pre><code class="language-bash">')
+        .replace(/\[\/bash\]/g, '</code></pre>')
+        .replace(
+          /\[sourcecode language="(\w+)"\]/g,
+          '<pre><code class="language-$1">',
+        )
+        .replace(/\[sourcecode\]/g, '<pre><code>')
+        .replace(/\[\/sourcecode\]/g, '</code></pre>')
+        .replace(
+          /\[quote.*?name="(.*?)".*?\](.*?)\[\/quote\]/g,
+          '<blockquote><p>$2<br /><br /><cite>$1</cite></p></blockquote>',
+        );
 
       content = turndownService.turndown(content);
 
