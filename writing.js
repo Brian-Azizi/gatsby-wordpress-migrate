@@ -74,4 +74,37 @@ function writing(header, images, content, dest) {
   });
 }
 
-module.exports = writing;
+function writeAuthors(login, author, dest) {
+  const destination = path.isAbsolute(dest)
+    ? dest
+    : [process.cwd(), path.normalize(dest)].join('/');
+
+  // Create the destination folder exists
+  if (!fs.existsSync(destination)) {
+    fs.mkdirSync(destination);
+  }
+
+  const authorContent = JSON.stringify(
+    {
+      author,
+      bio: null,
+      picture: null,
+    },
+    null,
+    4,
+  );
+
+  // Writing the markdowns inside the folders
+  fs.outputFile(
+    `${destination}/${login.split('@')[0]}.json`,
+    authorContent,
+    err => {
+      if (err) {
+        return log(error(err));
+      }
+      return log(success(`The author ${login} was successfully extracted.`));
+    },
+  );
+}
+
+module.exports = { writing, writeAuthors };

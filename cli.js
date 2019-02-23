@@ -16,7 +16,7 @@ const helperFunctions = require('./functions');
 (async () => {
   const args = process.argv;
   let infos = null;
-  if (args.length < 4) {
+  if (args.length < 5) {
     infos = await inquirer.prompt([
       {
         type: 'input',
@@ -28,11 +28,17 @@ const helperFunctions = require('./functions');
         name: 'dest',
         message: 'Destination for your new MarkDown folder:',
       },
+      {
+        type: 'input',
+        name: 'authorsDest',
+        message: 'Destination for authors JSON data:',
+      },
     ]);
   }
 
   const inputFilePath = infos ? infos.xml : args[2];
   const outputDir = infos ? infos.dest : args[3];
+  const authorsOutputDir = infos ? infos.authorsDest : args[4];
 
   // Read the XML file and call DataWrangle after we parse it
   return fs.readFile(inputFilePath, (err, data) => {
@@ -44,7 +50,8 @@ const helperFunctions = require('./functions');
         return log(error(parseError));
       }
       log(success('Successfully loaded file.'));
-      return helperFunctions.dataWrangle(result, outputDir);
+      helperFunctions.dataWrangle(result, outputDir);
+      helperFunctions.getAuthors(result, authorsOutputDir);
     });
   });
 })();

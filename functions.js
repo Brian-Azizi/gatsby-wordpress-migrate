@@ -3,7 +3,7 @@ const { get, findIndex } = require('lodash');
 const chalk = require('chalk');
 const moment = require('moment');
 const TurndownService = require('turndown');
-const writing = require('./writing');
+const { writing, writeAuthors } = require('./writing');
 
 const { log } = console;
 const { yellow: progress } = chalk;
@@ -13,8 +13,6 @@ IMAGE_COUNT = 0;
 IMAGE_ERRORS = 0;
 
 const escapeQuotes = string => string.replace(/"/gm, '\\"');
-
-// TODO: in html, Need to replace [code language=XXX] by <pre><code class="language-XXX"> and [/code] by </code></pre> before calling turndown service
 
 /* *********** Turndown Initializing ********** */
 
@@ -85,6 +83,11 @@ const dataWrangle = async (data, destination) => {
     };
   };
 
+  const getAuthor = authorLogin =>
+    data.rss.channel[0]['wp:author'].find(
+      author => author['wp:author_login'][0] === authorLogin,
+    )['wp:author_display_name'];
+
   // Iterate in every Post
   data.rss.channel[0].item
     .filter(post => !!post.category)
@@ -110,6 +113,8 @@ const dataWrangle = async (data, destination) => {
           `./${image.fileName}`,
         );
       });
+
+      const author = getAuthor(get(post, `['dc:creator'][0]`));
       const thumbnail = getThumbnail(getMeta('_thumbnail_id'));
       if (thumbnail) images.unshift(thumbnail);
 
@@ -134,14 +139,15 @@ const dataWrangle = async (data, destination) => {
         .replace(
           /\[quote.*?name="(.*?)".*?\](.*?)\[\/quote\]/g,
           '<blockquote><p>$2<br /><br /><cite>$1</cite></p></blockquote>',
-        );
+        )
+        .replace(/<a.*href=".*".*>\s*(<img.*\/>)\s*<\/a>/g, '$1');
 
       content = turndownService.turndown(content);
 
       const header = {
         title: `"${escapeQuotes(get(post, 'title[0]'))}"`,
         thumbnail: thumbnail ? thumbnail.url : undefined,
-        author: get(post, `['dc:creator'][0]`),
+        author,
         date: moment(get(post, 'pubDate[0]')).format(),
         categories: `[${post.category.map(
           (category, categoriesIndex) =>
@@ -164,4 +170,13 @@ const dataWrangle = async (data, destination) => {
     });
 };
 
-module.exports = { dataWrangle };
+const getAuthors = async (data, destination) => {
+  data.rss.channel[0]['wp:author'].forEach((author, index) => {
+    log(progress(`Currently Parsing Author No: ${index + 1}`));
+    const login = author['wp:author_login'][0];
+    const name = author['wp:author_display_name'][0];
+    return writeAuthors(login, name, destination);
+  });
+};
+
+module.exports = { dataWrangle, getAuthors };
